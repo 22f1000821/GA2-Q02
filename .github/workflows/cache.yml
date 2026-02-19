@@ -1,0 +1,36 @@
+name: CI with dependency cache
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Prime the dependency cache
+      - name: Cache dependencies
+        id: cache-eb1ccc3
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: cache-eb1ccc3
+
+      # REQUIRED by the assignment:
+      # - step name MUST be prime-cache-eb1ccc3
+      # - it must echo the cache hit/miss result
+      - name: prime-cache-eb1ccc3
+        run: echo "cache-hit=${{ steps.cache-eb1ccc3.outputs.cache-hit }}"
+
+      # Optional (but nice): actually install something so cache matters
+      - name: Install dependencies (if package-lock.json exists)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "No package-lock.json found; skipping npm ci"
+          fi
